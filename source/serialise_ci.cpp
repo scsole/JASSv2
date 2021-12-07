@@ -59,7 +59,7 @@ namespace JASS
 	void serialise_ci::finish(void)
 		{
 		/*
-			Terminate each file so that they are syntacticly correct
+			Terminate each file so that they are syntactically correct
 		*/
 		vocab_file.write("};\n");
 
@@ -84,14 +84,44 @@ namespace JASS
 		*/
 		code << "void T_" << term << "(query_heap &q)\n";
 		code << "{\n";
+		code << "\t__asm__ (\n";
 
 		/*
 			Write out in this format
 		*/
 		auto end = document_ids + document_frequency;
 		auto current_tf = term_frequencies;
-		for (compress_integer::integer *current_id = document_ids; current_id < end; current_id++, current_tf++)
-			code << "q.add_rsv(" << *current_id << ',' << (size_t)*current_tf << ");\n";
+		for (compress_integer::integer *current_id = document_ids; current_id < end; current_id++, current_tf++) {
+			/*
+				Call add_rsv using its mangled name according to the IA64
+				C++ ABI specification. Tested using GCC 11.2.1
+			*/
+			if (current_id == document_ids) {
+				if (current_id == end - 1) {
+					code << "\t\"movl\t$" << (size_t)*current_tf << ", %%edx \\n\\t\"\n";
+					code << "\t\"movl\t$" << *current_id << ", %%esi \\n\\t\"\n";
+					code << "\t\"call\t_ZN4JASS10query_heap7add_rsvEjt@PLT\"\n";
+				} else {
+					code << "\t\"pushq\t%%rbp \\n\\t\"\n";
+					code << "\t\"movq\t%%rdi, %%rbp \\n\\t\"\n";
+					code << "\t\"movl\t$" << (size_t)*current_tf << ", %%edx \\n\\t\"\n";
+					code << "\t\"movl\t$" << *current_id << ", %%esi \\n\\t\"\n";
+					code << "\t\"call\t_ZN4JASS10query_heap7add_rsvEjt@PLT \\n\\t\"\n";
+				}
+			} else if (current_id == end - 1) {
+				code << "\t\"movq\t%%rbp, %%rdi \\n\\t\"\n";
+				code << "\t\"popq\t%%rbp \\n\\t\"\n";
+				code << "\t\"movl\t$" << (size_t)*current_tf << ", %%edx \\n\\t\"\n";
+				code << "\t\"movl\t$" << *current_id << ", %%esi \\n\\t\"\n";
+				code << "\t\"call\t_ZN4JASS10query_heap7add_rsvEjt@PLT\"\n";
+			} else {
+				code << "\t\"movq\t%%rbp, %%rdi \\n\\t\"\n";
+				code << "\t\"movl\t$" << (size_t)*current_tf << ", %%edx \\n\\t\"\n";
+				code << "\t\"movl\t$" << *current_id << ", %%esi \\n\\t\"\n";
+				code << "\t\"call\t_ZN4JASS10query_heap7add_rsvEjt@PLT \\n\\t\"\n";
+			}
+		}
+		code << "\t: : : \"edx\", \"esi\", \"rdi\");\n";
 		code << "}\n";
 
 		postings_file.write(code.str());

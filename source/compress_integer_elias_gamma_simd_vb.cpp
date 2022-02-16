@@ -414,7 +414,7 @@ namespace JASS
 		compress_integer_elias_gamma_simd_vb *compressor;
 
 		compressor = new compress_integer_elias_gamma_simd_vb();
-		std::vector<std::string>etc;
+		std::vector<const char *>etc;
 		compressor->init(etc);
 
 

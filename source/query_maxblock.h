@@ -236,7 +236,7 @@ namespace JASS
 				@param top_k [in]	The top-k documents to return from the query once executed.
 				@param width [in] The width of the 2-d accumulators (if they are being used).
 			*/
-			virtual void init(const std::vector<std::string> &primary_keys, DOCID_TYPE documents = 1024, size_t top_k = 10, size_t preferred_width = 7)
+			virtual void init(const std::vector<const char *> &primary_keys, DOCID_TYPE documents = 1024, size_t top_k = 10, size_t preferred_width = 7)
 				{
 				query::init(primary_keys, documents, top_k);
 				accumulators.init(documents, preferred_width);
@@ -539,7 +539,7 @@ namespace JASS
 			*/
 			static void unittest_this(query_maxblock *query_object)
 				{
-				std::vector<std::string> keys = {"one", "two", "three", "four"};
+				std::vector<const char *> keys = {"one", "two", "three", "four"};
 				query_object->init(keys, 1024, 2);
 				query_object->rewind();
 				std::ostringstream string;

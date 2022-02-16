@@ -147,7 +147,7 @@ namespace JASS
 				{
 				public:
 					size_t document_id;							///< The document identifier
-					const std::string &primary_key;			///< The external identifier of the document (the primary key)
+					const char *primary_key;			///< The external identifier of the document (the primary key)
 					ACCUMULATOR_TYPE rsv;						///< The rsv (Retrieval Status Value) relevance score
 
 				public:
@@ -161,7 +161,7 @@ namespace JASS
 						@param key [in] The external identifier of the document (the primary key).
 						@param rsv [in] The rsv (Retrieval Status Value) relevance score.
 					*/
-					docid_rsv_pair(size_t document_id, const std::string &key, ACCUMULATOR_TYPE rsv) :
+					docid_rsv_pair(size_t document_id, const char *key, ACCUMULATOR_TYPE rsv) :
 						document_id(document_id),
 						primary_key(key),
 						rsv(rsv)
@@ -182,7 +182,7 @@ namespace JASS
 
 			parser_query parser;															///< Parser responsible for converting text into a parsed query
 			query_term_list *parsed_query;											///< The parsed query
-			const std::vector<std::string> *primary_keys;						///< A vector of strings, each the primary key for the document with an id equal to the vector index
+			const std::vector<const char *> *primary_keys;						///< A vector of strings, each the primary key for the document with an id equal to the vector index
 
 		public:
 			size_t top_k;																	///< The number of results to track.
@@ -221,7 +221,7 @@ namespace JASS
 				@param top_k [in]	The top-k documents to return from the query once executed.
 				@param width [in] The width of the 2-d accumulators (if they are being used).
 			*/
-			virtual void init(const std::vector<std::string> &primary_keys, DOCID_TYPE documents = 1024, size_t top_k = 10, size_t width = 7)
+			virtual void init(const std::vector<const char*> &primary_keys, DOCID_TYPE documents = 1024, size_t top_k = 10, size_t width = 7)
 				{
 				this->primary_keys = &primary_keys;
 				this->top_k = top_k;

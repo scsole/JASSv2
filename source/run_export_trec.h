@@ -91,7 +91,7 @@ namespace JASS
 			static void unittest(void)
 				{
 				std::vector<uint32_t>integer_sequence = {1, 1, 1, 1, 1, 1};
-				std::vector<std::string>primary_keys = {"zero", "one", "two", "three", "four", "five", "six"};
+				std::vector<const char *>primary_keys = {"zero", "one", "two", "three", "four", "five", "six"};
 				compress_integer_none *identity = new compress_integer_none;
 				identity->init(primary_keys, 10, 10);
 				std::ostringstream result;
